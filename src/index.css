@@ -596,6 +596,32 @@ select.form-input {
     margin-bottom: 24px;
   }
 
+  /* Fix search bar overlap on mobile */
+  /* Target the search container */
+  .search-container {
+    padding: 0 !important;
+  }
+
+  /* Stack search elements on mobile */
+  .search-input-wrapper-main {
+    flex-direction: column !important;
+    gap: 12px;
+  }
+
+  .main-search-input {
+    padding-right: 16px !important; /* Remove right padding for button */
+    border-radius: 12px !important; /* Less rounded on mobile */
+  }
+
+  .search-btn-main {
+    position: relative !important;
+    right: auto !important;
+    width: 100%;
+    max-width: 200px;
+    align-self: center;
+    padding: 14px 24px !important;
+  }
+
   /* Side toggle - stack vertically on mobile */
   .side-toggle {
     flex-direction: column;
@@ -758,10 +784,23 @@ select.form-input {
     font-size: 0.875rem;
   }
 
-  /* Search input - larger touch target */
+  /* Search bar - option to hide button on very small screens */
+  .hide-search-btn-mobile .search-btn-main {
+    display: none !important;
+  }
+
+  .search-container {
+    margin: 0 0 24px !important;
+  }
+
+  /* Search input - larger touch target and prevent button overlap */
   .search-input {
     padding: 14px 12px 14px 48px;
     font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .main-search-input {
+    padding: 14px 14px 14px 52px !important;
   }
 
   /* Increase touch targets for buttons */
@@ -929,7 +968,6 @@ select.form-input {
     padding-bottom: max(20px, env(safe-area-inset-bottom));
   }
 }
-
 
 
 
