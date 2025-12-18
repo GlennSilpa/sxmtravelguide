@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { Search, Star, MapPin, Clock, Phone, Calendar, Users, Utensils, Hotel, ShoppingBag, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Star, MapPin, Clock, Phone, Calendar, Users, Utensils, Hotel, ShoppingBag, X, User, LogOut, Plus } from 'lucide-react';
 import './index.css';
+import Auth from './components/Auth';
+import AddPlace from './components/AddPlace';
 
 const App = () => {
   const [activeCategory, setActiveCategory] = useState('all');
@@ -15,6 +17,36 @@ const App = () => {
   });
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState({ name: '', rating: 5, text: '' });
+  
+  // NEW STATE VARIABLES - THESE WERE MISSING!
+  const [user, setUser] = useState(null);
+  const [showAuth, setShowAuth] = useState(false);
+  const [showAddPlace, setShowAddPlace] = useState(false);
+  const [userPlaces, setUserPlaces] = useState([]);
+
+  // Load user and places from localStorage
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+    
+    const savedPlaces = localStorage.getItem('userPlaces');
+    if (savedPlaces) {
+      setUserPlaces(JSON.parse(savedPlaces));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+  };
+
+  const handleAddPlace = (newPlace) => {
+    const updated = [...userPlaces, newPlace];
+    setUserPlaces(updated);
+    localStorage.setItem('userPlaces', JSON.stringify(updated));
+  };
 
   const places = [
     // RESTAURANTS
@@ -882,7 +914,10 @@ const App = () => {
     { id: 'beach', name: 'Beaches', icon: MapPin }
   ];
 
-  const filteredPlaces = places.filter(place => {
+  // Combine static places with user-added places
+  const allPlaces = [...places, ...userPlaces];
+
+  const filteredPlaces = allPlaces.filter(place => {
     const matchesCategory = activeCategory === 'all' || place.category === activeCategory;
     const matchesSide = activeSide === 'all' || place.side === activeSide;
     const matchesSearch = place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -924,131 +959,278 @@ const App = () => {
 
   return (
     <div className="app-container">
-      {/* Header */}
-      <div className="header">
-        <div className="header-content">
-          <h1>🏝️ SXM Travel Guide</h1>
-          <p>Discover the best of St. Maarten</p>
+      {/* Header - Exact TripAdvisor Style */}
+      <div style={{
+        background: 'white',
+        borderBottom: '1px solid #e5e7eb',
+        padding: '16px 0'
+      }}>
+        <div style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '0 16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          {/* Logo on the left */}
+          <h1 style={{
+            fontSize: '1.5rem',
+            fontWeight: 'bold',
+            color: '#000',
+            margin: 0
+          }}>
+            🏝️ SXM Travel Guide
+          </h1>
+
+          {/* Sign In button on the right */}
+          <div style={{display: 'flex', gap: '12px', alignItems: 'center'}}>
+            {user ? (
+              <>
+                <span style={{fontSize: '14px', color: '#000'}}>👤 {user.email}</span>
+                <button
+                  onClick={() => setShowAddPlace(true)}
+                  style={{
+                    background: '#10b981',
+                    color: 'white',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}
+                >
+                  <Plus size={16} style={{display: 'inline', marginRight: '4px', verticalAlign: 'middle'}} />
+                  Add Place
+                </button>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setShowAuth(true)}
+                style={{
+                  background: '#000',
+                  color: 'white',
+                  padding: '8px 24px',
+                  borderRadius: '20px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+              >
+                Sign in
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Search & Filters */}
-      <div className="filters-container">
-        <div className="search-box">
-          <div className="search-input-wrapper">
-            <Search className="search-icon" size={20} />
+      {/* Where to? Section */}
+      <div style={{
+        maxWidth: '1280px',
+        margin: '0 auto',
+        padding: '40px 16px 20px'
+      }}>
+        <h2 style={{
+          fontSize: '3rem',
+          fontWeight: 'bold',
+          textAlign: 'center',
+          marginBottom: '30px',
+          color: '#000'
+        }}>
+          Where to?
+        </h2>
+
+        {/* Category Tabs - TripAdvisor style with icons */}
+        <div style={{
+          display: 'flex',
+          gap: '24px',
+          justifyContent: 'center',
+          marginBottom: '24px',
+          borderBottom: '1px solid #e5e7eb'
+        }}>
+          {categories.map(cat => {
+            const Icon = cat.icon;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeCategory === cat.id ? '3px solid #000' : '3px solid transparent',
+                  padding: '16px 8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontWeight: '500',
+                  color: '#000',
+                  fontSize: '16px',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <Icon size={20} />
+                {cat.name}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Search Bar - TripAdvisor style */}
+        <div style={{
+          maxWidth: '800px',
+          margin: '0 auto 30px',
+          position: 'relative'
+        }}>
+          <div style={{
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            <Search 
+              size={24} 
+              style={{
+                position: 'absolute',
+                left: '20px',
+                color: '#999'
+              }} 
+            />
             <input
               type="text"
-              placeholder="Search restaurants, hotels, stores, beaches..."
-              className="search-input"
+              placeholder="Places to go, things to do, hotels..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '16px 16px 16px 56px',
+                fontSize: '16px',
+                border: '1px solid #ccc',
+                borderRadius: '50px',
+                outline: 'none'
+              }}
             />
-          </div>
-
-          {/* Side Toggle */}
-          <div className="side-toggle">
             <button
-              onClick={() => setActiveSide('all')}
-              className={`side-btn ${activeSide === 'all' ? 'active-all' : 'inactive'}`}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                background: '#34e0a1',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50px',
+                padding: '10px 32px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
             >
-              🏝️ All SXM
+              Search
             </button>
-            <button
-              onClick={() => setActiveSide('dutch')}
-              className={`side-btn ${activeSide === 'dutch' ? 'active-dutch' : 'inactive'}`}
-            >
-              🇳🇱 Dutch Side
-            </button>
-            <button
-              onClick={() => setActiveSide('french')}
-              className={`side-btn ${activeSide === 'french' ? 'active-french' : 'inactive'}`}
-            >
-              🇫🇷 French Side
-            </button>
-          </div>
-
-          <div className="category-buttons">
-            {categories.map(cat => {
-              const Icon = cat.icon;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`category-btn ${activeCategory === cat.id ? 'active' : 'inactive'}`}
-                >
-                  <Icon size={18} />
-                  {cat.name}
-                </button>
-              );
-            })}
           </div>
         </div>
 
-        {/* Places Grid */}
-        <div className="places-grid">
-          {filteredPlaces.map(place => (
-            <div
-              key={place.id}
-              className="place-card"
-              onClick={() => setSelectedPlace(place)}
-            >
-              <div className="place-card-image">
-                <img src={place.image} alt={place.name} />
-                <div className="place-card-price">{place.price}</div>
-              </div>
+        {/* Side Toggle */}
+        <div className="side-toggle" style={{marginBottom: '30px'}}>
+          <button
+            onClick={() => setActiveSide('all')}
+            className={`side-btn ${activeSide === 'all' ? 'active-all' : 'inactive'}`}
+          >
+            🏝️ All SXM
+          </button>
+          <button
+            onClick={() => setActiveSide('dutch')}
+            className={`side-btn ${activeSide === 'dutch' ? 'active-dutch' : 'inactive'}`}
+          >
+            🇳🇱 Dutch Side
+          </button>
+          <button
+            onClick={() => setActiveSide('french')}
+            className={`side-btn ${activeSide === 'french' ? 'active-french' : 'inactive'}`}
+          >
+            🇫🇷 French Side
+          </button>
+        </div>
+      </div>
 
-              <div className="place-card-content">
-                <div className="place-card-header">
-                  <h3>{place.name}</h3>
-                  {place.category === 'restaurant' && <Utensils style={{color: '#f97316'}} size={20} />}
-                  {place.category === 'hotel' && <Hotel style={{color: '#3b82f6'}} size={20} />}
-                  {place.category === 'store' && <ShoppingBag style={{color: '#a855f7'}} size={20} />}
-                  {place.category === 'beach' && <span style={{fontSize: '24px'}}>🏖️</span>}
-                </div>
-
-                <div className="place-card-rating">
-                  <div className="rating-badge">
-                    <Star style={{fill: '#fbbf24', color: '#fbbf24'}} size={16} />
-                    <span>{place.rating}</span>
-                  </div>
-                  <span className="reviews-count">({place.reviews} reviews)</span>
-                </div>
-
-                <div className="place-card-location">
-                  <MapPin style={{color: '#3b82f6'}} size={16} />
-                  <span>{place.location}</span>
-                </div>
-
-                {place.cuisine && (
-                  <p className="place-card-info">{place.cuisine}</p>
-                )}
-                {place.amenities && (
-                  <p className="place-card-info">{place.amenities}</p>
-                )}
-                {place.specialty && (
-                  <p className="place-card-info">{place.specialty}</p>
-                )}
-                {place.features && (
-                  <p className="place-card-info">🏖️ {place.features}</p>
-                )}
-
-                <button
-                  className="place-card-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedPlace(place);
-                    if (place.category !== 'beach') {
-                      setShowBooking(true);
-                    }
-                  }}
-                >
-                  {place.category === 'hotel' ? 'Book Room' : place.category === 'restaurant' ? 'Reserve Table' : place.category === 'beach' ? 'View Details' : 'Visit Store'}
-                </button>
-              </div>
+      {/* Places Grid */}
+      <div className="places-grid">
+        {filteredPlaces.map(place => (
+          <div
+            key={place.id}
+            className="place-card"
+            onClick={() => setSelectedPlace(place)}
+          >
+            <div className="place-card-image">
+              <img src={place.image} alt={place.name} />
+              <div className="place-card-price">{place.price}</div>
             </div>
-          ))}
-        </div>
+
+            <div className="place-card-content">
+              <div className="place-card-header">
+                <h3>{place.name}</h3>
+                {place.category === 'restaurant' && <Utensils style={{color: '#f97316'}} size={20} />}
+                {place.category === 'hotel' && <Hotel style={{color: '#3b82f6'}} size={20} />}
+                {place.category === 'store' && <ShoppingBag style={{color: '#a855f7'}} size={20} />}
+                {place.category === 'beach' && <span style={{fontSize: '24px'}}>🏖️</span>}
+              </div>
+
+              <div className="place-card-rating">
+                <div className="rating-badge">
+                  <Star style={{fill: '#fbbf24', color: '#fbbf24'}} size={16} />
+                  <span>{place.rating}</span>
+                </div>
+                <span className="reviews-count">({place.reviews} reviews)</span>
+              </div>
+
+              <div className="place-card-location">
+                <MapPin style={{color: '#3b82f6'}} size={16} />
+                <span>{place.location}</span>
+              </div>
+
+              {place.cuisine && (
+                <p className="place-card-info">{place.cuisine}</p>
+              )}
+              {place.amenities && (
+                <p className="place-card-info">{place.amenities}</p>
+              )}
+              {place.specialty && (
+                <p className="place-card-info">{place.specialty}</p>
+              )}
+              {place.features && (
+                <p className="place-card-info">🏖️ {place.features}</p>
+              )}
+
+              <button
+                className="place-card-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedPlace(place);
+                  if (place.category !== 'beach') {
+                    setShowBooking(true);
+                  }
+                }}
+              >
+                {place.category === 'hotel' ? 'Book Room' : place.category === 'restaurant' ? 'Reserve Table' : place.category === 'beach' ? 'View Details' : 'Visit Store'}
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Detail Modal */}
@@ -1268,6 +1450,23 @@ const App = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Auth Modal */}
+      {showAuth && (
+        <Auth
+          onClose={() => setShowAuth(false)}
+          onSuccess={(user) => setUser(user)}
+        />
+      )}
+
+      {/* Add Place Modal */}
+      {showAddPlace && user && (
+        <AddPlace
+          user={user}
+          onClose={() => setShowAddPlace(false)}
+          onAdd={handleAddPlace}
+        />
       )}
     </div>
   );
