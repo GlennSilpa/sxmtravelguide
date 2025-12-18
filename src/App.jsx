@@ -1058,40 +1058,44 @@ const App = () => {
         </h2>
 
         {/* Category Tabs - TripAdvisor style with icons */}
-        <div style={{
-          display: 'flex',
-          gap: '24px',
-          justifyContent: 'center',
-          marginBottom: '24px',
-          borderBottom: '1px solid #e5e7eb'
-        }}>
+<div className="category-tabs-wrapper" style={{
+  borderBottom: '1px solid #e5e7eb',
+  marginBottom: '24px'
+}}>
+  <div className="category-tabs-container" style={{
+    display: 'flex',
+    gap: '24px',
+    justifyContent: 'center'
+  }}>
           {categories.map(cat => {
-            const Icon = cat.icon;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  borderBottom: activeCategory === cat.id ? '3px solid #000' : '3px solid transparent',
-                  padding: '16px 8px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontWeight: '500',
-                  color: '#000',
-                  fontSize: '16px',
-                  transition: 'all 0.2s'
-                }}
-              >
-                <Icon size={20} />
-                {cat.name}
-              </button>
-            );
-          })}
-        </div>
+    const Icon = cat.icon;
+    return (
+      <button
+        key={cat.id}
+        onClick={() => setActiveCategory(cat.id)}
+        className="category-tab-btn"  /* ADD THIS className */
+        style={{
+          background: 'none',
+          border: 'none',
+          borderBottom: activeCategory === cat.id ? '3px solid #000' : '3px solid transparent',
+          padding: '16px 8px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontWeight: '500',
+          color: '#000',
+          fontSize: '16px',
+          transition: 'all 0.2s'
+        }}
+      >
+        <Icon size={20} />
+        {cat.name}
+      </button>
+    );
+  })}
+  </div>  {/* Close the category-tabs-container */}
+</div>  {/* This closes category-tabs-wrapper */}
 
         {/* Search Bar - TripAdvisor style */}
         <div style={{
