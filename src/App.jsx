@@ -1098,22 +1098,29 @@ const App = () => {
 </div>  {/* This closes category-tabs-wrapper */}
 
         {/* Search Bar - TripAdvisor style */}
-        <div style={{
-          maxWidth: '800px',
-          margin: '0 auto 30px',
-          position: 'relative'
-        }}>
-          <div style={{
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center'
-          }}>
+        <div 
+          className="search-container"
+          style={{
+            maxWidth: '800px',
+            margin: '0 auto 30px',
+            position: 'relative'
+          }}
+        >
+          <div 
+            className="search-input-wrapper-main"
+            style={{
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
             <Search 
               size={24} 
               style={{
                 position: 'absolute',
                 left: '20px',
-                color: '#999'
+                color: '#999',
+                zIndex: 1
               }} 
             />
             <input
@@ -1121,6 +1128,7 @@ const App = () => {
               placeholder="Places to go, things to do, hotels..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="main-search-input"
               style={{
                 width: '100%',
                 padding: '16px 16px 16px 56px',
@@ -1131,6 +1139,7 @@ const App = () => {
               }}
             />
             <button
+              className="search-btn-main"
               style={{
                 position: 'absolute',
                 right: '8px',
@@ -1148,7 +1157,6 @@ const App = () => {
             </button>
           </div>
         </div>
-
         {/* Side Toggle */}
         <div className="side-toggle" style={{marginBottom: '30px'}}>
           <button
