@@ -303,7 +303,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 16px;
-  z-index: 50;
+  z-index: 500;
   overflow-y: auto;
 }
 
@@ -573,7 +573,6 @@ select.form-input {
 
 /* Tablets and below (768px) */
 @media (max-width: 768px) {
-  /* Header adjustments */
   .header h1 {
     font-size: 1.75rem;
   }
@@ -586,7 +585,6 @@ select.form-input {
     padding: 20px 16px;
   }
 
-  /* Search and filters */
   .filters-container {
     padding: 24px 16px;
   }
@@ -596,21 +594,18 @@ select.form-input {
     margin-bottom: 24px;
   }
 
-  /* Fix search bar overlap on mobile */
-  /* Target the search container */
   .search-container {
     padding: 0 !important;
   }
 
-  /* Stack search elements on mobile */
   .search-input-wrapper-main {
     flex-direction: column !important;
     gap: 12px;
   }
 
   .main-search-input {
-    padding-right: 16px !important; /* Remove right padding for button */
-    border-radius: 12px !important; /* Less rounded on mobile */
+    padding-right: 16px !important;
+    border-radius: 12px !important;
   }
 
   .search-btn-main {
@@ -622,7 +617,6 @@ select.form-input {
     padding: 14px 24px !important;
   }
 
-  /* Side toggle - stack vertically on mobile */
   .side-toggle {
     flex-direction: column;
     gap: 8px;
@@ -634,7 +628,6 @@ select.form-input {
     font-size: 16px;
   }
 
-  /* Category buttons - horizontal scroll on mobile */
   .category-buttons {
     gap: 8px;
     justify-content: flex-start;
@@ -642,13 +635,12 @@ select.form-input {
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     padding-bottom: 8px;
-    scroll-snap-type: x mandatory; /* Snap scrolling for better UX */
+    scroll-snap-type: x mandatory;
   }
 
-  /* Hide scrollbar for Chrome/Safari */
   .category-buttons::-webkit-scrollbar {
     display: none;
   }
@@ -656,19 +648,17 @@ select.form-input {
   .category-btn {
     padding: 10px 16px;
     font-size: 14px;
-    flex: 0 0 auto; /* Don't shrink, don't grow */
+    flex: 0 0 auto;
     white-space: nowrap;
-    scroll-snap-align: start; /* Snap to buttons */
+    scroll-snap-align: start;
   }
 
-  /* Visual hint that content is scrollable */
   .category-buttons::after {
     content: '';
     flex: 0 0 16px;
     height: 1px;
   }
 
-  /* Mobile horizontal scroll for category tabs container */
   .category-tabs-wrapper {
     overflow-x: auto !important;
     overflow-y: hidden !important;
@@ -676,8 +666,8 @@ select.form-input {
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
     scroll-behavior: smooth;
-    margin: 0 -16px; /* Extend to screen edges */
-    padding: 0 16px; /* Add padding back inside */
+    margin: 0 -16px;
+    padding: 0 16px;
   }
 
   .category-tabs-wrapper::-webkit-scrollbar {
@@ -687,25 +677,23 @@ select.form-input {
   .category-tabs-container {
     flex-wrap: nowrap !important;
     scroll-snap-type: x mandatory;
-    justify-content: flex-start !important; /* Align left for scrolling */
-    gap: 16px !important; /* Reduce gap on mobile */
+    justify-content: flex-start !important;
+    gap: 16px !important;
   }
 
   .category-tab-btn {
     flex-shrink: 0 !important;
     white-space: nowrap !important;
     scroll-snap-align: start;
-    padding: 14px 12px !important; /* Slightly smaller padding */
+    padding: 14px 12px !important;
   }
 
-  /* Places grid - 1 column on mobile */
   .places-grid {
     grid-template-columns: 1fr;
     gap: 16px;
     padding: 0 16px 24px;
   }
 
-  /* Place cards - optimized for mobile */
   .place-card-image {
     height: 240px;
   }
@@ -718,17 +706,18 @@ select.form-input {
     font-size: 1.125rem;
   }
 
-  /* Modal adjustments - full screen on mobile */
+  /* FIXED: Modal overlay on mobile - no longer full screen */
   .modal-overlay {
-    padding: 0;
-    align-items: flex-start;
+    padding: 8px;
+    align-items: center;
   }
 
   .modal-content {
-    border-radius: 0;
+    border-radius: 12px;
     max-width: 100%;
     margin: 0;
-    min-height: 100vh;
+    max-height: 95vh;
+    overflow-y: auto;
   }
 
   .modal-image {
@@ -750,7 +739,6 @@ select.form-input {
     font-size: 1.5rem;
   }
 
-  /* Comment form */
   .comment-form {
     padding: 16px;
   }
@@ -759,12 +747,13 @@ select.form-input {
     font-size: 1rem;
   }
 
-  /* Booking modal - full screen on mobile */
+  /* FIXED: Booking modal - no longer full screen */
   .booking-modal {
     max-width: 100%;
     width: 100%;
-    border-radius: 0;
-    min-height: 100vh;
+    border-radius: 12px;
+    max-height: 95vh;
+    overflow-y: auto;
     padding: 20px 16px;
   }
 
@@ -775,7 +764,6 @@ select.form-input {
 
 /* Mobile phones (480px and below) */
 @media (max-width: 480px) {
-  /* Header */
   .header h1 {
     font-size: 1.5rem;
   }
@@ -784,26 +772,19 @@ select.form-input {
     font-size: 0.875rem;
   }
 
-  /* Search bar - option to hide button on very small screens */
-  .hide-search-btn-mobile .search-btn-main {
-    display: none !important;
-  }
-
   .search-container {
     margin: 0 0 24px !important;
   }
 
-  /* Search input - larger touch target and prevent button overlap */
   .search-input {
     padding: 14px 12px 14px 48px;
-    font-size: 16px; /* Prevents zoom on iOS */
+    font-size: 16px;
   }
 
   .main-search-input {
     padding: 14px 14px 14px 52px !important;
   }
 
-  /* Increase touch targets for buttons */
   .side-btn {
     padding: 16px 24px;
     font-size: 16px;
@@ -815,14 +796,12 @@ select.form-input {
     min-height: 44px;
   }
 
-  /* Place card buttons - larger touch target */
   .place-card-btn {
     padding: 14px;
     font-size: 16px;
     min-height: 48px;
   }
 
-  /* Modal elements */
   .modal-book-btn {
     padding: 16px;
     font-size: 1rem;
@@ -834,19 +813,16 @@ select.form-input {
     min-height: 52px;
   }
 
-  /* Form inputs - prevent zoom on iOS */
   .form-input,
   .form-textarea {
     font-size: 16px;
     padding: 12px 16px;
   }
 
-  /* Star rating - larger touch area */
   .star-btn {
     padding: 4px;
   }
 
-  /* Comment cards */
   .comment-card {
     padding: 16px;
   }
@@ -859,21 +835,18 @@ select.form-input {
     font-size: 12px;
   }
 
-  /* Rating badge */
   .rating-badge {
     padding: 6px 10px;
   }
 
-  /* Modal rating section */
   .modal-rating {
     flex-wrap: wrap;
     gap: 8px;
   }
 }
 
-/* Additional touch-friendly improvements */
+/* Touch-friendly improvements */
 @media (hover: none) and (pointer: coarse) {
-  /* Remove hover effects on touch devices */
   .place-card:hover {
     transform: none;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -911,7 +884,7 @@ select.form-input {
   }
 }
 
-/* Landscape mobile optimization */
+/* Landscape mobile */
 @media (max-width: 768px) and (orientation: landscape) {
   .modal-image {
     height: 180px;
@@ -923,12 +896,12 @@ select.form-input {
   }
 
   .booking-modal {
-    max-height: 100vh;
+    max-height: 90vh;
     overflow-y: auto;
   }
 }
 
-/* Extra small devices (360px and below) */
+/* Extra small devices */
 @media (max-width: 360px) {
   .header h1 {
     font-size: 1.25rem;
@@ -951,13 +924,13 @@ select.form-input {
   }
 }
 
-/* Improve scrolling performance on mobile */
+/* Scrolling performance */
 .modal-overlay,
 .modal-body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Safe area padding for notched devices */
+/* Safe area for notched devices */
 @supports (padding: max(0px)) {
   .app-container {
     padding-left: max(0px, env(safe-area-inset-left));
@@ -969,5 +942,101 @@ select.form-input {
   }
 }
 
+/* ==========================================
+   MOBILE STYLES FOR NEW COMPONENTS
+   ========================================== */
 
+/* Header mobile hamburger */
+@media (max-width: 768px) {
+  .header-desktop-buttons {
+    display: none !important;
+  }
+  .header-mobile-menu-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+}
 
+/* Featured Sponsor card */
+@media (max-width: 768px) {
+  .featured-sponsor-card {
+    flex-direction: column !important;
+    gap: 16px !important;
+    padding: 16px !important;
+  }
+  .featured-sponsor-image {
+    width: 100% !important;
+    height: 180px !important;
+  }
+  .featured-sponsor-cta {
+    width: 100%;
+  }
+  .featured-sponsor-cta button {
+    width: 100%;
+    padding: 14px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* History Timeline - single column on mobile */
+@media (max-width: 640px) {
+  .timeline-line {
+    left: 20px !important;
+    transform: none !important;
+  }
+  .timeline-dot {
+    left: 20px !important;
+    transform: none !important;
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 16px !important;
+  }
+  .timeline-item {
+    justify-content: flex-end !important;
+  }
+  .timeline-card {
+    width: calc(100% - 70px) !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+  }
+}
+
+/* Admin Panel tabs on mobile */
+@media (max-width: 480px) {
+  .admin-tabs-container {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .admin-tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Advertise modal grids on mobile */
+@media (max-width: 480px) {
+  .advertise-grid-2col {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* UserProfile stats grid */
+@media (max-width: 480px) {
+  .profile-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Detail modal favorite + close buttons */
+@media (max-width: 480px) {
+  .modal-image {
+    height: 200px;
+  }
+}
+
+/* Place card admin buttons - larger touch targets on mobile */
+@media (max-width: 768px) {
+  .place-card:hover {
+    transform: none;
+  }
+}

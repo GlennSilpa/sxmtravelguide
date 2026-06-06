@@ -1,235 +1,279 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-
+import { collection, addDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../firebase';
+ 
+const CATEGORIES = [
+  { id: 'restaurant', label: '🍽️ Restaurant' },
+  { id: 'hotel', label: '🏨 Hotel' },
+  { id: 'store', label: '🛍️ Store' },
+  { id: 'beach', label: '🏖️ Beach' },
+  { id: 'car', label: '🚗 Car Rental' }
+];
+ 
+const SIDES = [
+  { id: 'dutch', label: '🇳🇱 Dutch Side' },
+  { id: 'french', label: '🇫🇷 French Side' }
+];
+ 
+const emptyForm = {
+  name: '',
+  category: 'restaurant',
+  side: 'dutch',
+  location: '',
+  phone: '',
+  hours: '',
+  description: '',
+  price: '$',
+  cuisine: '',
+  amenities: '',
+  specialty: '',
+  features: '',
+  specs: ''
+};
+ 
 const AddPlace = ({ user, onClose, onAdd }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    category: 'restaurant',
-    side: 'dutch',
-    location: '',
-    price: '$$',
-    phone: '',
-    hours: '',
-    description: '',
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80',
-    cuisine: '',
-    amenities: '',
-    specialty: '',
-    features: ''
-  });
-
-  const handleSubmit = () => {
-    if (!formData.name || !formData.location || !formData.description) {
-      alert('Please fill in required fields: Name, Location, Description');
+  const [form, setForm] = useState(emptyForm);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+ 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+ 
+  const handleSubmit = async () => {
+    if (!form.name || !form.location || !form.description) {
+      alert('Please fill in name, location and description');
       return;
     }
-
-    const newPlace = {
-      ...formData,
-      id: Date.now(),
-      rating: 5.0,
-      reviews: 0,
-      userId: user.id,
-      userEmail: user.email,
-      createdAt: new Date().toISOString()
-    };
-
-    onAdd(newPlace);
-    alert('Place added successfully! 🎉');
-    onClose();
+    if (!imageFile) {
+      alert('Please upload an image');
+      return;
+    }
+ 
+    setLoading(true);
+    try {
+      const storageRef = ref(storage, `places/${Date.now()}_${imageFile.name}`);
+      await uploadBytes(storageRef, imageFile);
+      const imageUrl = await getDownloadURL(storageRef);
+ 
+      const placeData = {
+        ...form,
+        image: imageUrl,
+        rating: 0,
+        reviews: 0,
+        status: 'pending',
+        submittedBy: user.email,
+        submittedAt: new Date().toISOString(),
+        id: Date.now()
+      };
+ 
+      await addDoc(collection(db, 'pendingPlaces'), placeData);
+      setSubmitted(true);
+    } catch (e) {
+      alert('Error submitting place: ' + e.message);
+    }
+    setLoading(false);
   };
-
+ 
+  if (submitted) {
+    return (
+      <div className="modal-overlay" onClick={() => { setSubmitted(false); onClose(); }}>
+        <div className="booking-modal" style={{ textAlign: 'center', padding: '40px 24px' }} onClick={e => e.stopPropagation()}>
+          <div style={{ fontSize: '4rem', marginBottom: '16px' }}>🎉</div>
+          <h3 style={{ margin: '0 0 12px', fontSize: '1.4rem' }}>Submission Received!</h3>
+          <p style={{ color: '#6b7280', marginBottom: '24px' }}>
+            Your place has been submitted for review. The admin will approve it shortly and it will appear on the site.
+          </p>
+          <button onClick={() => { setSubmitted(false); onClose(); }} style={{
+            background: '#000', color: 'white', border: 'none',
+            borderRadius: '50px', padding: '12px 32px', fontWeight: '600', cursor: 'pointer'
+          }}>
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
+ 
   return (
-    <div className="modal-overlay" style={{overflowY: 'auto'}}>
-      <div className="modal-content" style={{margin: '20px auto', maxWidth: '600px'}}>
+    <div className="modal-overlay" onClick={() => { setSubmitted(false); onClose(); }}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div style={{
-          position: 'relative',
-          padding: '24px',
-          background: 'linear-gradient(90deg, #2563eb 0%, #0891b2 100%)',
-          borderRadius: '16px 16px 0 0'
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '20px 24px', borderBottom: '1px solid #e5e7eb',
+          position: 'sticky', top: 0, background: 'white', zIndex: 1
         }}>
-          <h2 style={{color: 'white', margin: 0, fontSize: '1.5rem'}}>✨ Add New Place</h2>
-          <p style={{color: '#bfdbfe', marginTop: '4px', fontSize: '14px'}}>Share your favorite spot in SXM!</p>
-          <button
-            onClick={onClose}
-            style={{
-              position: 'absolute',
-              top: '16px',
-              right: '16px',
-              background: 'white',
-              borderRadius: '50%',
-              padding: '8px',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-          >
+          <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold' }}>➕ Add a Place</h3>
+          <button onClick={() => { setSubmitted(false); onClose(); }} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
             <X size={24} />
           </button>
         </div>
-
-        <div className="modal-body">
-          <div className="booking-form">
-            <div className="form-group">
-              <label className="form-label">Name *</label>
-              <input
-                className="form-input"
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                placeholder="Business/Beach name"
-              />
+ 
+        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+ 
+          {/* Category */}
+          <div>
+            <label className="form-label">Category</label>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+              {CATEGORIES.map(cat => (
+                <button key={cat.id} onClick={() => setForm({ ...form, category: cat.id })}
+                  style={{
+                    padding: '8px 16px', borderRadius: '50px', border: '2px solid',
+                    borderColor: form.category === cat.id ? '#000' : '#e5e7eb',
+                    background: form.category === cat.id ? '#000' : 'white',
+                    color: form.category === cat.id ? 'white' : '#000',
+                    cursor: 'pointer', fontWeight: '600', fontSize: '13px'
+                  }}>
+                  {cat.label}
+                </button>
+              ))}
             </div>
-
-            <div className="form-group">
-              <label className="form-label">Category *</label>
-              <select
-                className="form-input"
-                value={formData.category}
-                onChange={(e) => setFormData({...formData, category: e.target.value})}
-              >
-                <option value="restaurant">🍽️ Restaurant</option>
-                <option value="hotel">🏨 Hotel</option>
-                <option value="store">🏪 Store</option>
-                <option value="beach">🏖️ Beach</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Side *</label>
-              <select
-                className="form-input"
-                value={formData.side}
-                onChange={(e) => setFormData({...formData, side: e.target.value})}
-              >
-                <option value="dutch">🇳🇱 Dutch Side</option>
-                <option value="french">🇫🇷 French Side</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Location *</label>
-              <input
-                className="form-input"
-                value={formData.location}
-                onChange={(e) => setFormData({...formData, location: e.target.value})}
-                placeholder="e.g., Maho Beach, Philipsburg"
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Price Range</label>
-              <select
-                className="form-input"
-                value={formData.price}
-                onChange={(e) => setFormData({...formData, price: e.target.value})}
-              >
-                <option value="Free">Free</option>
-                <option value="$">$ (Budget)</option>
-                <option value="$$">$$ (Moderate)</option>
-                <option value="$$$">$$$ (Expensive)</option>
-                <option value="$$$$">$$$$ (Luxury)</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Phone</label>
-              <input
-                className="form-input"
-                value={formData.phone}
-                onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                placeholder="+1 721-555-0000 or N/A"
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Hours</label>
-              <input
-                className="form-input"
-                value={formData.hours}
-                onChange={(e) => setFormData({...formData, hours: e.target.value})}
-                placeholder="e.g., 9:00 AM - 10:00 PM"
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Image URL (optional)</label>
-              <input
-                className="form-input"
-                value={formData.image}
-                onChange={(e) => setFormData({...formData, image: e.target.value})}
-                placeholder="https://example.com/image.jpg"
-              />
-              <p style={{fontSize: '12px', color: '#6b7280', marginTop: '4px'}}>
-                💡 Tip: Right-click any image online → Copy image address
-              </p>
-            </div>
-
-            {formData.category === 'restaurant' && (
-              <div className="form-group">
-                <label className="form-label">Cuisine</label>
-                <input
-                  className="form-input"
-                  value={formData.cuisine}
-                  onChange={(e) => setFormData({...formData, cuisine: e.target.value})}
-                  placeholder="e.g., Caribbean Fusion, Italian"
-                />
-              </div>
-            )}
-
-            {formData.category === 'hotel' && (
-              <div className="form-group">
-                <label className="form-label">Amenities</label>
-                <input
-                  className="form-input"
-                  value={formData.amenities}
-                  onChange={(e) => setFormData({...formData, amenities: e.target.value})}
-                  placeholder="e.g., Pool, Spa, Beach Access"
-                />
-              </div>
-            )}
-
-            {formData.category === 'store' && (
-              <div className="form-group">
-                <label className="form-label">Specialty</label>
-                <input
-                  className="form-input"
-                  value={formData.specialty}
-                  onChange={(e) => setFormData({...formData, specialty: e.target.value})}
-                  placeholder="e.g., Local Crafts & Spices"
-                />
-              </div>
-            )}
-
-            {formData.category === 'beach' && (
-              <div className="form-group">
-                <label className="form-label">Features</label>
-                <input
-                  className="form-input"
-                  value={formData.features}
-                  onChange={(e) => setFormData({...formData, features: e.target.value})}
-                  placeholder="e.g., Snorkeling, Beach Bars, Calm Waters"
-                />
-              </div>
-            )}
-
-            <div className="form-group">
-              <label className="form-label">Description *</label>
-              <textarea
-                className="form-textarea"
-                rows="4"
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                placeholder="Describe this place... What makes it special?"
-              />
-            </div>
-
-            <button onClick={handleSubmit} className="booking-submit-btn">
-              ✨ Add Place
-            </button>
           </div>
+ 
+          {/* Side */}
+          <div>
+            <label className="form-label">Side of the Island</label>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+              {SIDES.map(side => (
+                <button key={side.id} onClick={() => setForm({ ...form, side: side.id })}
+                  style={{
+                    padding: '8px 16px', borderRadius: '50px', border: '2px solid',
+                    borderColor: form.side === side.id ? '#000' : '#e5e7eb',
+                    background: form.side === side.id ? '#000' : 'white',
+                    color: form.side === side.id ? 'white' : '#000',
+                    cursor: 'pointer', fontWeight: '600', fontSize: '13px'
+                  }}>
+                  {side.label}
+                </button>
+              ))}
+            </div>
+          </div>
+ 
+          <div>
+            <label className="form-label">Name *</label>
+            <input type="text" className="form-input"
+              placeholder={form.category === 'car' ? 'e.g. Toyota Corolla 2023' : 'Place name'}
+              value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+          </div>
+ 
+          <div>
+            <label className="form-label">Location *</label>
+            <input type="text" className="form-input"
+              placeholder={form.category === 'car' ? 'e.g. Pickup at Princess Juliana Airport' : 'e.g. Simpson Bay, Maho Beach'}
+              value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
+          </div>
+ 
+          <div>
+            <label className="form-label">Description *</label>
+            <textarea className="form-textarea" rows={3}
+              placeholder={form.category === 'car' ? 'Describe the car, condition, included mileage...' : 'Describe this place...'}
+              value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+          </div>
+ 
+          {/* Price */}
+          <div>
+            <label className="form-label">{form.category === 'car' ? 'Price per Day' : 'Price Range'}</label>
+            {form.category === 'car' ? (
+              <input type="text" className="form-input" placeholder="e.g. $45/day"
+                value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} />
+            ) : (
+              <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                {['$', '$$', '$$$', '$$$$', 'Free'].map(p => (
+                  <button key={p} onClick={() => setForm({ ...form, price: p })}
+                    style={{
+                      padding: '6px 14px', borderRadius: '50px', border: '2px solid',
+                      borderColor: form.price === p ? '#000' : '#e5e7eb',
+                      background: form.price === p ? '#000' : 'white',
+                      color: form.price === p ? 'white' : '#000',
+                      cursor: 'pointer', fontWeight: '600', fontSize: '13px'
+                    }}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+ 
+          {/* Category-specific fields */}
+          {form.category === 'restaurant' && (
+            <div>
+              <label className="form-label">Cuisine Type</label>
+              <input type="text" className="form-input" placeholder="e.g. French Creole, Caribbean"
+                value={form.cuisine} onChange={e => setForm({ ...form, cuisine: e.target.value })} />
+            </div>
+          )}
+          {form.category === 'hotel' && (
+            <div>
+              <label className="form-label">Amenities</label>
+              <input type="text" className="form-input" placeholder="e.g. Pool, Spa, Beach Access"
+                value={form.amenities} onChange={e => setForm({ ...form, amenities: e.target.value })} />
+            </div>
+          )}
+          {form.category === 'store' && (
+            <div>
+              <label className="form-label">Specialty</label>
+              <input type="text" className="form-input" placeholder="e.g. Jewelry & Souvenirs"
+                value={form.specialty} onChange={e => setForm({ ...form, specialty: e.target.value })} />
+            </div>
+          )}
+          {form.category === 'beach' && (
+            <div>
+              <label className="form-label">Features</label>
+              <input type="text" className="form-input" placeholder="e.g. Snorkeling, Calm Waters"
+                value={form.features} onChange={e => setForm({ ...form, features: e.target.value })} />
+            </div>
+          )}
+          {form.category === 'car' && (
+            <div>
+              <label className="form-label">Specs</label>
+              <input type="text" className="form-input" placeholder="e.g. 5 seats, Automatic, AC, 4WD"
+                value={form.specs} onChange={e => setForm({ ...form, specs: e.target.value })} />
+            </div>
+          )}
+ 
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label className="form-label">Phone</label>
+              <input type="text" className="form-input" placeholder="+1 721-555-0000"
+                value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+            </div>
+            <div>
+              <label className="form-label">{form.category === 'car' ? 'Availability' : 'Hours'}</label>
+              <input type="text" className="form-input"
+                placeholder={form.category === 'car' ? 'e.g. Available year-round' : '9:00 AM - 6:00 PM'}
+                value={form.hours} onChange={e => setForm({ ...form, hours: e.target.value })} />
+            </div>
+          </div>
+ 
+          <div>
+            <label className="form-label">Photo *</label>
+            <input type="file" accept="image/*" onChange={handleImageChange}
+              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e5e7eb', boxSizing: 'border-box' }} />
+            {imagePreview && (
+              <img src={imagePreview} alt="preview"
+                style={{ marginTop: '10px', width: '100%', height: '160px', objectFit: 'cover', borderRadius: '8px' }} />
+            )}
+          </div>
+ 
+          <p style={{ fontSize: '13px', color: '#6b7280', margin: 0 }}>
+            📋 Your submission will be reviewed by an admin before appearing on the site.
+          </p>
+ 
+          <button onClick={handleSubmit} disabled={loading} className="booking-submit-btn">
+            {loading ? 'Submitting...' : 'Submit for Review'}
+          </button>
         </div>
       </div>
     </div>
   );
 };
-
+ 
 export default AddPlace;
