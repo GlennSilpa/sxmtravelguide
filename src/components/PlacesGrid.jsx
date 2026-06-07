@@ -3,10 +3,9 @@ import PlaceCard from './PlaceCard';
 import CardBanner from './banners/CardBanner';
 import FeaturedSponsor from './FeaturedSponsor';
 
-const PlacesGrid = ({ places, onSelect, onBook, isAdmin, onAdminEdit, onAdminDelete, featuredPlace }) => {
+const PlacesGrid = ({ places, onSelect, onBook, isAdmin, onAdminEdit, onAdminDelete, onAdminFeature, featuredPlace }) => {
   return (
     <div className="places-grid">
-      {/* Featured Sponsor always at the top */}
       {featuredPlace && (
         <FeaturedSponsor place={featuredPlace} onSelect={onSelect} />
       )}
@@ -16,8 +15,7 @@ const PlacesGrid = ({ places, onSelect, onBook, isAdmin, onAdminEdit, onAdminDel
           return <CardBanner key={`banner-${index}`} banner={item.data} />;
         }
         const place = item.type === 'place' ? item.data : item;
-        // Don't show the featured place again in the regular grid
-        if (featuredPlace && place.docId === featuredPlace.docId) return null;
+       
         return (
           <PlaceCard
             key={place.id || place.docId}
@@ -27,6 +25,8 @@ const PlacesGrid = ({ places, onSelect, onBook, isAdmin, onAdminEdit, onAdminDel
             isAdmin={isAdmin}
             onAdminEdit={onAdminEdit}
             onAdminDelete={onAdminDelete}
+            onAdminFeature={onAdminFeature}
+            isFeatured={featuredPlace?.docId === place.docId}
           />
         );
       })}

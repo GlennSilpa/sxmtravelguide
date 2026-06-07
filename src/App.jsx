@@ -201,7 +201,7 @@ const App = () => {
               onAdminEdit={setAdminEditingPlace}
               onAdminDelete={handleAdminDelete}
               onAdminFeature={handleAdminFeature}
-              featuredPlace={activeCategory === 'all' ? featuredPlace : null}
+              featuredPlace={featuredPlace}
             />
           </div>
           {getBannersByType('sidebar').length > 0 && (
