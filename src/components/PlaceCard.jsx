@@ -34,7 +34,7 @@ const PlaceCard = ({ place, onSelect, onBook, isAdmin, onAdminEdit, onAdminDelet
           {place.category === 'hotel' && <Hotel style={{ color: '#3b82f6' }} size={20} />}
           {place.category === 'store' && <ShoppingBag style={{ color: '#a855f7' }} size={20} />}
           {place.category === 'beach' && <span style={{ fontSize: '24px' }}>🏖️</span>}
-          {place.category === 'car' && <Car style={{ color: '#10b981' }} size={20} />}
+          {place.category === 'taxi' && <Car style={{ color: '#10b981' }} size={20} />}
         </div>
 
         <div className="place-card-rating">
@@ -54,7 +54,7 @@ const PlaceCard = ({ place, onSelect, onBook, isAdmin, onAdminEdit, onAdminDelet
         {place.amenities && <p className="place-card-info">{place.amenities}</p>}
         {place.specialty && <p className="place-card-info">{place.specialty}</p>}
         {place.features && <p className="place-card-info">🏖️ {place.features}</p>}
-        {place.specs && <p className="place-card-info">🚗 {place.specs}</p>}
+        {place.specs && <p className="place-card-info">🚕 {place.specs}</p>}
 
         <button
           className="place-card-btn"
@@ -63,34 +63,26 @@ const PlaceCard = ({ place, onSelect, onBook, isAdmin, onAdminEdit, onAdminDelet
           {place.category === 'hotel' ? 'Book Room'
             : place.category === 'restaurant' ? 'Reserve Table'
             : place.category === 'beach' ? 'View Details'
-            : place.category === 'car' ? 'Rent Now'
+            : place.category === 'taxi' ? 'Book Taxi'
             : 'Visit Store'}
         </button>
       </div>
 
-      {/* Admin hover controls */}
       {isAdmin && hovered && (
         <div
           style={{ position: 'absolute', bottom: '12px', right: '12px', display: 'flex', gap: '8px', zIndex: 10 }}
           onClick={e => e.stopPropagation()}
         >
-          <button
-            onClick={() => onAdminFeature(place)}
+          <button onClick={() => onAdminFeature(place)}
             title={isFeatured ? 'Remove Featured' : 'Set as Featured'}
-            style={{
-              background: isFeatured ? '#fef3c7' : 'white',
-              border: `1px solid ${isFeatured ? '#f59e0b' : '#e5e7eb'}`,
-              borderRadius: '50%', width: '36px', height: '36px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-            }}>
+            style={{ background: isFeatured ? '#fef3c7' : 'white', border: `1px solid ${isFeatured ? '#f59e0b' : '#e5e7eb'}`, borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
             <Crown size={16} color={isFeatured ? '#f59e0b' : '#374151'} />
           </button>
-          <button onClick={() => onAdminEdit(place)} title="Edit"
+          <button onClick={() => onAdminEdit(place)}
             style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
             <Edit2 size={16} color="#374151" />
           </button>
-          <button onClick={() => onAdminDelete(place)} title="Delete"
+          <button onClick={() => onAdminDelete(place)}
             style={{ background: '#ef4444', border: 'none', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
             <Trash2 size={16} color="white" />
           </button>

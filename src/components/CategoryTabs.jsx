@@ -7,7 +7,7 @@ const categories = [
   { id: 'hotel', name: 'Hotels', icon: Hotel },
   { id: 'store', name: 'Stores', icon: ShoppingBag },
   { id: 'beach', name: 'Beaches', icon: MapPin },
-  { id: 'car', name: 'Car Rentals', icon: Car },
+  { id: 'taxi', name: 'Taxi', icon: Car },
   { id: 'history', name: 'History', icon: BookOpen }
 ];
 
